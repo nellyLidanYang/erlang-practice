@@ -1,0 +1,2 @@
+foo bar foo apple
+bar bar purple banana

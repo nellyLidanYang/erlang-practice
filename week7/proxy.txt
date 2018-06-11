@@ -1,0 +1,2 @@
+ π”√httpc£∫
+{Status {Slinr, Head, Body}}=httpc:request(URL);

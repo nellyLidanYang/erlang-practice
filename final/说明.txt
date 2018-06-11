@@ -1,0 +1,20 @@
+输出说明：
+Sequence:随机生成的序列
+final:拼接结果
+ratio:初始序列和拼接结果的长度比值
+
+并行策略：
+1.函数genSequence生成长度为N的随机序列；
+2.函数cutOff将K份序列切碎。littleCutOff函数用于将一份切开。在littleCutOff过程中，getCutLength函数返回一个随机数list，代表每块碎片的长度，平均为L。此list交予littleCutOff将序列按其中长度切开。碎片集合被排序，目的是将其打乱，存于Snippers；
+3.函数handOutTask将Snippers发给每个Core；
+4.在每个进程内，函数coreTask首先调用cleanSnippers函数将被长串包含的短串清洗掉。cleanSnippers就是简单O(n^2)的暴力搜索。得到的干净list存在CleanList里。然后调用merge函数把这些短串拼在一起。merge也是暴搜，返回一个list是拼接结果，发给monitor；
+5.monitor进程接收各个core发来的list，然后再调用cleanSnipper和merge得到一个list，getTheResult从中选取最长的串作为最终结果。
+
+结果：
+和同学的对比了一下，时间上还算比较快，但是准确性大家好像都不怎么高（>1000的时候）。
+	平均长度L：
+	碎片平均长度越短准确率越差(拼接结果太短)，但到一定大小后再增大误差也会变大(拼接结果过长)。例如长度1000的串平均长度取50误差比较小，(N=1000, K=3, L=50, Core=3)在[0.8~1.2]之间摆动。
+	核数Core：
+	核数越大越不准，这是肯定的，实验结果也这样。因为每个核内自己就把snippers拼接起来了，其他参数固定的时候core越大分给每个核的碎片就越少，误差增大。(N=1000, K=3, L=50, Core=10)误差在[1.6~2.3]之间，有时候更大……
+	复制分数K：
+	除了让时间变得更长之外K变大并没有任何用处，误差随着K而增长比Core还要快，(N=1000, K=10, L=50, Core=3)误差[1.8~2.5]。
